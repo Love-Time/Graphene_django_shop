@@ -142,16 +142,19 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.mail.ru'
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', '')
-DOMAIN = 'localhost:3000'
-SITE_NAME = 'YouTube_Clone'
+DOMAIN = ('localhost:3000')
+SITE_NAME = ('YOUR_SITE_NAME')
 CODE_LIFE_SECONDS = 7200
+
+
+SERVER_EMAIL = 'WHAT'
 
 
 GRAPHENE = {
@@ -170,7 +173,10 @@ GRAPHQL_AUTH = {
         'status__archived': ['exact'],
         'status__verified': ['exact'],
         'status__secondary_email': ['exact'],
-    }
+    },
+"EMAIL_TEMPLATE_VARIABLES": {
+        "frontend_domain": "127.0.0.1:3000"
+    },
 }
 
 AUTHENTICATION_BACKENDS = [
@@ -194,4 +200,4 @@ GRAPHQL_JWT = {
 
 }
 
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
