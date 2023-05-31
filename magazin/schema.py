@@ -5,8 +5,10 @@ from django import forms
 from django.core.files.base import ContentFile
 from graphene import Field
 from graphene_django import DjangoObjectType
+from graphene_django.rest_framework.mutation import SerializerMutation
 from graphene_file_upload.scalars import Upload
 from graphql import GraphQLError
+from rest_framework import permissions, views
 
 from .models import Category, Product
 from .serializers import ProductSerializer
@@ -36,9 +38,10 @@ class ProductType(DjangoObjectType):
         fields = ('id', 'title', 'description', 'price', 'image', 'category')
 
 
-class CreateProductMutation(graphene.Mutation):
-    product = Field(ProductType)
 
+
+
+class ProductArguments:
     class Arguments:
         title = graphene.String(required=True)
         description = graphene.String(required=True)
@@ -46,19 +49,27 @@ class CreateProductMutation(graphene.Mutation):
         category = graphene.Int(required=True)
         image = Upload()
 
+class CreateProductMutation(ProductArguments, graphene.Mutation):
+    product = Field(ProductType)
+    class Meta:
+        serializer_class = ProductSerializer
+
+
     @classmethod
     def mutate(cls, root, info, **kwargs):
+        print(root)
         if not info.context.user.is_staff:
             raise UnauthorisedAccessError(message="ИДИ НАХУЙ, тебе нельзя это делать")
-        format, imgstr = kwargs['image'].split(';base64,')
-        ext = format.split('/')[-1]
-        kwargs['image'] = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)  # You can save this as file ins
+        # format, imgstr = kwargs['image'].split(';base64,')
+        # ext = format.split('/')[-1]
+        # kwargs['image'] = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)  # You can save this as file ins
 
         serializer = ProductSerializer(data=kwargs)
         if serializer.is_valid():
             data = serializer.save()
             return CreateProductMutation(product=data)
         return None
+
 
 
 class Query(graphene.ObjectType):
@@ -94,4 +105,4 @@ class Mutation(graphene.ObjectType):
     create_product = CreateProductMutation.Field()
 
 
-schema = graphene.Schema(query=Query, mutation=Mutation)
+
